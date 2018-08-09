@@ -1,1 +1,1 @@
-# Simple Reference Implementation of Block chain distributed nodes.
+# Simple Reference Implementation of Block chain & distributed nodes.
