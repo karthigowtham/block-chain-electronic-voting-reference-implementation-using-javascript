@@ -4,9 +4,10 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var request = require('request');
+
 var index = require('./routes/index');
 var users = require('./routes/users');
+var manageBlockChain=require('./src/ManageBlockChainNodes');
 
 var app = express();
 
@@ -22,61 +23,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
+app.use('/', manageBlockChain.router);
+app.use('/manage', index);
 app.use('/users', users);
-var nodeNWAddress = new Set();
-app.post('/registerNode', function (req, res) {
-  var ip = req.ip.split(':')[3];
-  var port = req.body.port;
-  var nodeAddress = req.body.nodeAddress;
-  var nodeUrl = "http://".concat(ip).concat(":").concat(port)
 
-  nodeNWAddress.add(nodeUrl);
-  // broadcast the network address to all the clients
-  res.json({
-    message: "I am registered to network",
-    nodeUrl: nodeUrl,
-    nodeNWAddress: [...nodeNWAddress]
-  })
-
-})
-
-setInterval(() => {
-  nodeNWAddress.forEach(networkNode => {
-    let reqOption = {
-      uri: networkNode + '/register/bulk-nodes',
-      method: 'POST',
-      body: { networkNodes: [...nodeNWAddress] },
-      json: true
-    }
-    request(reqOption, function (error, response, body) {
-      console.log('error:', error); // Print the error if one occurred
-      console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-      console.log('body:', body);
-    })
-  })
-}, 10000);
-
-
-setInterval(() => {
-  nodeNWAddress.forEach(networkNode => {
-    let reqOption = {
-      uri: networkNode + '/register/check',
-      method: 'GET',
-      json: true
-    }
-    request(reqOption, function (error, response, body) {
-     if(error){
-       console.log("removing the node "+networkNode)
-      nodeNWAddress.delete(networkNode);
-     }
-     if(response && response.statusCode===404){
-     console.log("removing the node "+networkNode)
-      nodeNWAddress.delete(networkNode);
-     }
-    })
-  })
-}, 5000);
+setInterval(manageBlockChain.healthCheck,5000);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
