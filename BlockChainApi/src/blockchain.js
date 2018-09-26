@@ -2,10 +2,11 @@ const sha256=require('sha256');
 const uuid=require('uuid');
 
 class Transactions{
-    constructor(fromAddress,toAddress,amount){
+    constructor(fromAddress,toAddress,amount,id){
         this.fromAddress=fromAddress;
         this.toAddress=toAddress;
         this.amount=amount;
+        this.id=id;
     }
 }
 class Block{
@@ -40,6 +41,7 @@ class BlockChain{
         this.pendingTransactions=[];
         this.mineReward=100;
         this.networkNodes = [];
+        this.mynodeUrl='';
     }
 
     createGenesisBlock(){

@@ -6,11 +6,12 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 const reqPromise = require('request-promise');
-
+const uuid=require('uuid');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
-var register=require('./src/registration');
+var register = require('./src/registration');
+var chainDistribution = require('./src/chainDistribution');
 
 var app = express();
 
@@ -26,10 +27,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
-app.use('/register',register);
+app.use('/register', register.router);
 
 app.use('/users', users);
 
+setInterval(register.updateNWnodes, 10000)
 
 const blockChain = require('./src/blockchain');
 const viCoin = blockChain.SingletonBlockChain.getInstance();
@@ -39,18 +41,42 @@ app.get('/blockchain', function (req, res) {
 });
 
 app.post('/transaction', function (req, res) {
-    viCoin.createTransaction(
-        new blockChain.Transactions(
-            req.body.sender,
-            req.body.recipient,
-            req.body.amount)
-    );
-    res.json(
-        {
+    let transaction = new blockChain.Transactions(
+        req.body.sender,
+        req.body.recipient,
+        req.body.amount,
+        uuid().split('-').join(''))
+    viCoin.createTransaction(transaction);
+    //push to other nodes. transaction
+    let requests = chainDistribution.broadCastTransaction(transaction)
+    if (requests.length > 0) {
+        Promise.all(requests)
+            .then(data => {
+                res.json(
+                    {
+                        message: `Creating and broadcasting Transaction successfully!`
+                    }
+                );
+            });
+    } else {
+        res.json({
             message: `Transaction is added to block with index: ${viCoin.pendingTransactions.length - 1}`
-        }
-    );
+        });
+    }
 });
+
+app.post('/transaction/broadcast', function (req, res) {
+    let transaction = new blockChain.Transactions(
+        req.body.sender,
+        req.body.recipient,
+        req.body.amount,
+        req.body.id)
+    viCoin.createTransaction(transaction);
+    res.json({
+        message: `Transaction is added to block with index: ${viCoin.pendingTransactions.length - 1}`
+    });
+});
+
 
 app.get('/mine', function (req, res) {
     viCoin.minePendingTransactions(req.params.myaddress);
