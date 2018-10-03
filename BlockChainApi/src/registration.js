@@ -5,15 +5,7 @@ const request = require('request');
 const uuid = require('uuid');
 const www = require('../bin/www');
 var serverInfo = require('./Server-info');
-
-router.post('/bulk-nodes', function (req, res) {
-    const networkNodes = req.body.networkNodes;
-    console.log(networkNodes);
-    let viCoin = blockChain.SingletonBlockChain.getInstance();
-    viCoin.networkNodes = networkNodes;
-    res.json({ message: 'Successfully updated the network nodes' });
-})
-
+const chainDistribution= require('./chainDistribution')
 
 router.get('/check', function (req, res) {
     res.json({ message: 'Node available' });
@@ -37,8 +29,9 @@ router.get('/register-me', function (req, res) {
         } else {
             let chain = blockChain.SingletonBlockChain.getInstance();
             info.setNodeManager(req.query.nodemanager);
-            chain.networkNodes = body.nodeNWAddress;
             chain.mynodeUrl=body.nodeUrl;
+            chain.updateNetworkNodes(body.nodeNWAddress);
+            chainDistribution.updateMyChain();
             res.json({ message: 'Successfully Register myself' })
         }
     });
@@ -64,7 +57,7 @@ router.get('/deRegister-me', function (req, res) {
             info.setNodeManager('');
             let chain = blockChain.SingletonBlockChain.getInstance();
             chain.mynodeUrl='';
-            chain.networkNodes =[];
+            chain.updateNetworkNodes([]);
             res.json({ message: 'Successfully de-Registered myself' })
         }
     });
@@ -85,7 +78,7 @@ var updateNWnodes = () => {
                 info.nodeManager='';
             }else{
                 let chain = blockChain.SingletonBlockChain.getInstance();
-                chain.networkNodes = body.networkNodes;
+                chain.updateNetworkNodes(body.networkNodes);
             }
         })
     } else {

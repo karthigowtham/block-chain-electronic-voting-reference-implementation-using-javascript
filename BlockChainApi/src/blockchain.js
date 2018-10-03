@@ -2,10 +2,10 @@ const sha256=require('sha256');
 const uuid=require('uuid');
 
 class Transactions{
-    constructor(fromAddress,toAddress,amount,id){
-        this.fromAddress=fromAddress;
-        this.toAddress=toAddress;
-        this.amount=amount;
+    constructor(voter,candidate,vote,id){
+        this.voter=voter;
+        this.candidate=candidate;
+        this.vote=vote;
         this.id=id;
     }
 }
@@ -20,7 +20,7 @@ class Block{
     }
 
     calculateHash(){
-        return sha256(this.timestamp+this.prevHash+this.nonce+JSON.stringify(this.transactions).toString());
+       return calculateHash(this);
     }
 
     generateBlockId(){
@@ -42,6 +42,7 @@ class BlockChain{
         this.mineReward=100;
         this.networkNodes = [];
         this.mynodeUrl='';
+        this.rejectedTransactions=[];
     }
 
     createGenesisBlock(){
@@ -57,35 +58,49 @@ class BlockChain{
         block.prevHash=this.getLatestBlock().hash;
         block.mineBlock(this.difficulty);
         this.chain.push(block);
-        this.pendingTransactions=[
-            new Transactions(null,rewardAddress,this.mineReward)
-        ];
+        this.pendingTransactions=[];
     }
 
     createTransaction(transaction){
-        this.pendingTransactions.push(transaction);
-    }
-
-    getBalanceOfAddress(address){
-        let balance=0;
-        for(let blck of this.chain){
+        let alreadyVoted=false;
+         for(let blck of this.chain){
             for(let txn of blck.transactions){
-                if(txn.fromAddres==address){
-                    balance-=txn.amount
-                }
-                if(txn.toAddres==address){
-                    balance+=txn.amount
+                if(txn.voter==transaction.voter){
+                   alreadyVoted=true;
+                   break;
                 }
             }
         }
-        return balance;
+        if(alreadyVoted){   
+            this.rejectedTransactions.push(transaction);
+        }else{
+            let duplicateTxn = this.pendingTransactions.find(txn=>{
+                 return txn.voter==transaction.voter
+            });
+            if(duplicateTxn)
+                 this.rejectedTransactions.push(transaction);
+            else
+                 this.pendingTransactions.push(transaction);
+        }
+    }
+
+    countVotesForCandidate(candidate){
+        let votes=0;
+        for(let blck of this.chain){
+            for(let txn of blck.transactions){
+                if(txn.candidate==candidate){
+                    votes+=txn.vote
+                }
+            }
+        }
+        return votes;
     }
 
     isChainValid(){
         for(let i=1;i<this.chain.length;i++){
             const currentBlock=this.chain[i];
             const previousBlock=this.chain[i-1];
-            var calHash=currentBlock.calculateHash();
+            var calHash=calculateHash(currentBlock);
             if(currentBlock.hash!==calHash){
                 return false;
             }
@@ -96,8 +111,51 @@ class BlockChain{
 
         }
     }
-}
+    
 
+    isTempChainValid(localChain){
+        for(let i=1;i<localChain.length;i++){
+            const currentBlock=localChain[i];         
+            const previousBlock=localChain[i-1];
+            var calHash=calculateHash(currentBlock);
+            if(currentBlock.hash!==calHash){
+                return false;
+            }
+            if(currentBlock.prevHash!==previousBlock.hash){
+                return false;
+            }
+            return true;
+        }
+    }
+
+    updateChain(chain,pendingTransactions){
+       this.chain=chain;
+       this.pendingTransactions=pendingTransactions;
+    }
+
+    updateNetworkNodes(nodes){
+        if(Array.isArray(nodes)){
+            console.log("node is array")
+             var index = nodes.indexOf(this.mynodeUrl);
+            if (index > -1) {
+                nodes.splice(index, 1);
+            }
+            this.networkNodes=nodes
+        }
+        else{
+            let nwNodes =[]
+            nwnodes= nodes.toString().split(',');
+            var index = nwnodes.indexOf(this.mynodeUrl);
+            if (index > -1) {
+                nwnodes.splice(index, 1);
+            }
+            this.networkNodes=nwNodes
+        }
+    }
+}
+var calculateHash=(block)=>{
+ return sha256(block.timestamp+block.prevHash+block.nonce+JSON.stringify(block.transactions).toString());
+}
 var SingletonBlockChain = (function () {
     var instance;
     function createInstance() {
