@@ -10,9 +10,8 @@ const uuid=require('uuid');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
-var register = require('./src/registration');
-var chainDistribution = require('./src/chainDistribution');
-
+var register = require('./src/API/registration');
+var apiService=require('./src/API/apiService');
 var app = express();
 
 // view engine setup
@@ -28,86 +27,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
 app.use('/register', register.router);
-
+app.use('/api',apiService)
 app.use('/users', users);
 
 setInterval(register.updateNWnodes, 10000)
-
-const blockChain = require('./src/blockchain');
-const viCoin = blockChain.SingletonBlockChain.getInstance();
-
-app.get('/blockchain', function (req, res) {
-    res.send(viCoin);
-});
-
-
-app.get('/blockchain/chain', function (req, res) {
-    res.send({chain:viCoin.chain,pendingTransactions:viCoin.pendingTransactions,rejectedTransactions:viCoin.rejectedTransactions});
-});
-
-app.post('/transaction', function (req, res) {
-    let transaction = new blockChain.Transactions(
-        req.body.voter,
-        req.body.candidate,
-        1,
-        uuid().split('-').join(''))
-    viCoin.createTransaction(transaction);
-    //push to other nodes. transaction
-    let requests = chainDistribution.broadCastTransaction(transaction)
-    if (requests.length > 0) {
-        Promise.all(requests)
-            .then(data => {
-                res.json(
-                    {
-                        message: `Creating and broadcasting Transaction successfully!`
-                    }
-                );
-            });
-    } else {
-        res.json({
-            message: `Transaction is added to block with index: ${viCoin.pendingTransactions.length - 1}`
-        });
-    }
-});
-
-app.post('/transaction/broadcast', function (req, res) {
-    let transaction = new blockChain.Transactions(
-        req.body.voter,
-        req.body.candidate,
-        req.body.vote,
-        req.body.id)
-    viCoin.createTransaction(transaction);
-    res.json({
-        message: `Transaction is added to block with index: ${viCoin.pendingTransactions.length - 1}`
-    });
-});
-
-
-app.get('/mine', function (req, res) {
-    viCoin.minePendingTransactions(req.params.myaddress);
-    let newBlock = viCoin.getLatestBlock();
-    res.json({
-        message: 'Mining new Block successfully!',
-        newBlock
-    });
-});
-
-app.get('/countVote',function(req,res){
-    let count=viCoin.countVotesForCandidate(req.query.candidate); 
-    res.json({
-        candidate:req.query.candidate,
-        count:count
-    })
-})
-
-app.get('/updateMyChain',function(req,res){
-    chainDistribution.updateMyChain();
-    res.json({
-        status:"Chain Updated",
-        chain:viCoin.chain
-    
-    })
-});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

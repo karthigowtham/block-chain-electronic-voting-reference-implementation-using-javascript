@@ -1,11 +1,10 @@
 var express = require('express');
 var router = express.Router();
-const blockChain = require('./blockchain');
+const blockChain = require('../blockchain');
 const request = require('request');
 const uuid = require('uuid');
-const www = require('../bin/www');
-var serverInfo = require('./Server-info');
-const chainDistribution= require('./chainDistribution')
+var serverInfo = require('../Server-info');
+const chainDistribution = require('./chainDistribution')
 
 router.get('/check', function (req, res) {
     res.json({ message: 'Node available' });
@@ -29,7 +28,7 @@ router.get('/register-me', function (req, res) {
         } else {
             let chain = blockChain.SingletonBlockChain.getInstance();
             info.setNodeManager(req.query.nodemanager);
-            chain.mynodeUrl=body.nodeUrl;
+            chain.mynodeUrl = body.nodeUrl;
             chain.updateNetworkNodes(body.nodeNWAddress);
             chainDistribution.updateMyChain();
             res.json({ message: 'Successfully Register myself' })
@@ -41,7 +40,6 @@ router.get('/register-me', function (req, res) {
 router.get('/deRegister-me', function (req, res) {
     // registring the Node to node manager.
     var info = serverInfo.getInstance(null);
-
     const nodeAddress = uuid();
     const registerMySelftoBlockChainNW = {
         uri: req.query.nodemanager + '/deRegisterNode',//"http://localhost:2000/registerNode",
@@ -56,7 +54,7 @@ router.get('/deRegister-me', function (req, res) {
         } else {
             info.setNodeManager('');
             let chain = blockChain.SingletonBlockChain.getInstance();
-            chain.mynodeUrl='';
+            chain.mynodeUrl = '';
             chain.updateNetworkNodes([]);
             res.json({ message: 'Successfully de-Registered myself' })
         }
@@ -75,8 +73,8 @@ var updateNWnodes = () => {
         request(reqOption, function (error, response, body) {
             if (error) {
                 console.log("removing the node " + networkNode)
-                info.nodeManager='';
-            }else{
+                info.nodeManager = '';
+            } else {
                 let chain = blockChain.SingletonBlockChain.getInstance();
                 chain.updateNetworkNodes(body.networkNodes);
             }
@@ -87,4 +85,4 @@ var updateNWnodes = () => {
 
 }
 
-module.exports = {router,updateNWnodes}
+module.exports = { router, updateNWnodes }

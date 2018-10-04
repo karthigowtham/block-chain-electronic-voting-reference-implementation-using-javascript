@@ -10,13 +10,13 @@ class Transactions{
     }
 }
 class Block{
-    constructor(timestamp,transactions,prevHash=''){
-        this.blockId=this.generateBlockId();
+    constructor(timestamp,transactions,blockId=this.generateBlockId(),hash='',prevHash='',nonce=0){
+        this.blockId=blockId;
         this.timestamp = timestamp;
         this.transactions = transactions;
-        this.hash = this.calculateHash();
+        this.hash = hash==''?this.calculateHash():hash;
         this.prevHash = prevHash;
-        this.nonce=0;
+        this.nonce=nonce;
     }
 
     calculateHash(){
@@ -43,6 +43,7 @@ class BlockChain{
         this.networkNodes = [];
         this.mynodeUrl='';
         this.rejectedTransactions=[];
+        this.myTransactions=[];
     }
 
     createGenesisBlock(){
@@ -111,9 +112,10 @@ class BlockChain{
 
         }
     }
-    
-
     isTempChainValid(localChain){
+        if(localChain.length==1){
+            return true;
+        }
         for(let i=1;i<localChain.length;i++){
             const currentBlock=localChain[i];         
             const previousBlock=localChain[i-1];
@@ -127,12 +129,15 @@ class BlockChain{
             return true;
         }
     }
-
-    updateChain(chain,pendingTransactions){
-       this.chain=chain;
+    updateChain(chain,pendingTransactions,rejectedTransactions){
+       this.chain=[];
+       for(let blk of chain){
+         let block = new Block(blk.timestamp,blk.transactions,blk.blockId,blk.hash,blk.prevHash,blk.nonce)
+         this.chain.push(block);
+       }
        this.pendingTransactions=pendingTransactions;
+       this.rejectedTransactions=rejectedTransactions;
     }
-
     updateNetworkNodes(nodes){
         if(Array.isArray(nodes)){
             console.log("node is array")
