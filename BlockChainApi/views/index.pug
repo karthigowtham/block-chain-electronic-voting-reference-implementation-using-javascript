@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  .col-md-12.col-md-offset-3
+    h1.display-4.m-b-2 Log In :: Blector
+    form(method='POST' action='/login')
+      div.form-group
+        label(for='email') Email
+        input.form-control(type='text' id='email' placeholder='email' name='email')
+      div.form-group
+        label(for='password') Password
+        input.form-control(type='password' id='password' placeholder='password' name='password')
+      div.form-group
+        label(for='pollMngr') Poll manager url
+        input.form-control(type='text' id='pollMngr' placeholder='pollMngr' name='pollMngr')
+      button.btn.btn-secondary(type='submit') Log in 

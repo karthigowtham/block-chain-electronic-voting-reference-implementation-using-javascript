@@ -36,7 +36,6 @@ class Block{
 
 class BlockChain{
     constructor(){
-        this.chain=[this.createGenesisBlock()];
         this.difficulty=5;
         this.pendingTransactions=[];
         this.mineReward=100;
@@ -44,17 +43,40 @@ class BlockChain{
         this.mynodeUrl='';
         this.rejectedTransactions=[];
         this.myTransactions=[];
+        this.chain=[this.createGenesisBlock()];
     }
 
     createGenesisBlock(){
-        return new Block(Date.now(),'Genesys Block');
+        let txn=new Transactions("system","system",0,1);
+        this.pendingTransactions.push(txn);
+        let block = new Block(Date.now(), this.pendingTransactions);
+        this.pendingTransactions=[];
+        return block;
     }
 
     getLatestBlock(){
         return this.chain[this.chain.length-1];
     }
     
-    minePendingTransactions(rewardAddress){
+    myTransactionStatus(user){
+        let combineTxn=this.pendingTransactions.concat(this.rejectedTransactions);
+        let duplicateTxn = combineTxn.find(txn=>{
+                 return txn.voter==user
+            });
+        if(duplicateTxn){
+            return "pending";
+        }
+         for(let blck of this.chain){
+            for(let txn of blck.transactions){
+                if(txn.voter==user){
+                   return "approved";
+                }
+            }
+        }
+       return "Please Vote";
+    }
+
+    minePendingTransactions(){
         let block=new Block(Date.now(),this.pendingTransactions);
         block.prevHash=this.getLatestBlock().hash;
         block.mineBlock(this.difficulty);
@@ -85,6 +107,28 @@ class BlockChain{
         }
     }
 
+    verifyVoteCasted(user){
+        let alreadyVoted=false;
+         for(let blck of this.chain){
+            for(let txn of blck.transactions){
+                if(txn.voter==user){
+                   alreadyVoted=true;
+                   break;
+                }
+            }
+        }
+        if(!alreadyVoted){
+            let combineTxn=this.pendingTransactions.concat(this.rejectedTransactions)
+            let duplicateTxn = combineTxn.find(txn=>{
+                 return txn.voter==user
+            });
+            if(duplicateTxn){
+                alreadyVoted=true;
+            }
+        }
+        return alreadyVoted;
+    }
+
     countVotesForCandidate(candidate){
         let votes=0;
         for(let blck of this.chain){
@@ -95,6 +139,17 @@ class BlockChain{
             }
         }
         return votes;
+    }
+
+    countVotesForCandidates(candidates){
+         console.log(candidates);
+        for(let candidate of candidates){
+            console.log(candidate);
+            candidate.count=this.countVotesForCandidate(candidate.name);
+            console.log(candidate);
+        }
+        console.log(candidates);
+        return candidates;
     }
 
     isChainValid(){

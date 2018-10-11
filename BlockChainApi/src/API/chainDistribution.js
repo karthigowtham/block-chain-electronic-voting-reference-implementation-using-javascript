@@ -27,7 +27,6 @@ var broadCastTransaction = (transaction) => {
             requests.push(reqPromise(reqOption));
         }
     });
-    console.log(requests)
     return requests;
 }
 var updateMyChain = () => {
@@ -46,7 +45,6 @@ var updateMyChain = () => {
             if (error) {
                 console.error("Error Updating my block with the existing chain", error)
             } else {
-                console.log(body.chain);
                 let chain = blockChain.SingletonBlockChain.getInstance();
                 if (chain.isTempChainValid(body.chain)) {
                     chain.updateChain(body.chain, body.pendingTransactions, body.rejectedTransactions)
@@ -61,9 +59,9 @@ var updateMyChain = () => {
 }
 var broadcastChain = () => {
     let blkChain = blockChain.SingletonBlockChain.getInstance();
-    let nodes = chain.networkNodes;
+    let nodes = blkChain.networkNodes;
     nodes.forEach(node => {
-        if (chain.mynodeUrl != node) {
+        if (blkChain.mynodeUrl != node) {
             let reqOption = {
                 uri: node + '/api/broadcast/chain',
                 method: 'POST',
@@ -72,11 +70,11 @@ var broadcastChain = () => {
                 proxy: '' // set this to bypass system proxy
             }
             request(reqOption, function (error, response, body) {
-            if (error) {
-                console.error("Error broadcast my chain with the existing chain", error)
-            } else {
-                console.log(body.received);
-            }
+                if (error) {
+                    console.error("Error broadcast my chain with the existing chain", error)
+                } else {
+                    console.log(body);
+                }
         })
         }
     });

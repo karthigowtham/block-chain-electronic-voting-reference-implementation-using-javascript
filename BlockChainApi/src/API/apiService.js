@@ -13,7 +13,7 @@ router.get('/blockchain', function (req, res) {
 });
 
 router.get('/blockchain/chain', function (req, res) {
-    res.send({chain:viCoin.chain,pendingTransactions:viCoin.pendingTransactions,rejectedTransactions:viCoin.rejectedTransactions});
+    res.send({ chain: viCoin.chain, pendingTransactions: viCoin.pendingTransactions, rejectedTransactions: viCoin.rejectedTransactions });
 });
 
 router.post('/transaction', function (req, res) {
@@ -53,17 +53,23 @@ router.post('/transaction/broadcast', function (req, res) {
 });
 
 router.post('/broadcast/chain', function (req, res) {
+    if (viCoin.isTempChainValid(req.body.chain)) {
+        viCoin.updateChain(req.body.chain, req.body.pendingTransactions, req.body.rejectedTransactions)
+        res.json({
+            message: 'Chain Added Successfully'
+        });
+    } else {
+        res.json({
+            message: 'Invalid chain'
+        });
+    }
 
-    res.json({
-        message: `Transaction is added to block with index: ${viCoin.pendingTransactions.length - 1}`,
-        received:req.body
-    });
 });
 
 
 
 router.get('/mine', function (req, res) {
-    viCoin.minePendingTransactions(req.params.myaddress);
+    viCoin.minePendingTransactions();
     let newBlock = viCoin.getLatestBlock();
     chainDistribution.broadcastChain();
     res.json({
@@ -72,21 +78,39 @@ router.get('/mine', function (req, res) {
     });
 });
 
-router.get('/countVote',function(req,res){
-    let count=viCoin.countVotesForCandidate(req.query.candidate); 
+router.get('/checkMyVote', function (req, res) {
+    let user=req.query.user;
+    let alreadyVoted=viCoin.verifyVoteCasted(user);
+    res.json(alreadyVoted);
+});
+
+router.get('/countVote', function (req, res) {
+    let count = viCoin.countVotesForCandidate(req.query.candidate);
     res.json({
-        candidate:req.query.candidate,
-        count:count
+        candidate: req.query.candidate,
+        count: count
     })
 })
 
-router.get('/updateMyChain',function(req,res){
+router.post('/countVote', function (req, res) {
+    let updatedCandidate = viCoin.countVotesForCandidates(req.body.candidates);
+    res.json({
+        candidates:updatedCandidate
+    })
+})
+
+router.get('/updateMyChain', function (req, res) {
     chainDistribution.updateMyChain();
     res.json({
-        status:"Chain Updated",
-        chain:viCoin.chain
-    
+        status: "Chain Updated",
+        chain: viCoin.chain
+
     })
 });
+router.get('/myTransactionStatus',(req,res)=>{
+    let user=req.query.user;
+    let alreadyVoted=viCoin.myTransactionStatus(user);
+    res.json(alreadyVoted);
+})
 
-module.exports=router;
+module.exports = router;

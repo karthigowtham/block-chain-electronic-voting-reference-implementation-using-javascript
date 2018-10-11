@@ -80,7 +80,7 @@ var updateNWnodes = () => {
             }
         })
     } else {
-        console.log('nodeManager Not avail')
+        console.log('Please connect to node manager');
     }
 
 }
