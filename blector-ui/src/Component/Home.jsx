@@ -125,7 +125,7 @@ export default class Home extends Component {
                     </tbody>
                 </table>
                 <div className="modal" tabIndex="-1" role="dialog" id='viewTxns'>
-                    <div className="modal-dialog modal-lg" role="document">
+                    <div className="modal-dialog modal-xlg" role="document">
                         <div className="modal-content bg-dark">
                             <div className="modal-header">
                                 <h5 className="modal-title">{this.state.modelTitle}</h5>

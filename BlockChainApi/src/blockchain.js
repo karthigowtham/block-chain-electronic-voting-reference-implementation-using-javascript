@@ -78,11 +78,13 @@ class BlockChain {
 
     minePendingTransactions() {
         if (this.pendingTransactions && this.pendingTransactions.length > 0) {
+            console.log("Mining started..");
             let block = new Block(Date.now(), this.pendingTransactions);
             block.prevHash = this.getLatestBlock().hash;
             block.mineBlock(this.difficulty);
             this.chain.push(block);
             this.pendingTransactions = [];
+            console.log("Mining completed..");
         }
     }
 

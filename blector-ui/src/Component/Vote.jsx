@@ -33,9 +33,8 @@ class Vote extends Component {
     }
 
     componentDidMount() {
-        this.checkMyVote();
-        this.myTransactionStatus();
         this.getLoggedInUser();
+               
     }
 
     getLoggedInUser = () => {
@@ -43,14 +42,15 @@ class Vote extends Component {
             resp => {
                 this.setState({
                     user: resp.data.user.username,
-
                 });
+                this.checkMyVote(resp.data.user.username);
+                this.myTransactionStatus(resp.data.user.username);
             });
     }
 
-    myTransactionStatus = () => {
+    myTransactionStatus = (usr) => {
         let self = this;
-        axios.get('/api/myTransactionStatus?user=' + this.state.user).then(
+        axios.get('/api/myTransactionStatus?user=' + usr).then(
             resp => {
                 self.setState({
                     voteStatus: resp.data
@@ -62,9 +62,9 @@ class Vote extends Component {
         )
     }
 
-    checkMyVote = () => {
+    checkMyVote = (usr) => {
         let self = this;
-        axios.get('/api/checkMyVote?user=' + this.state.user).then(
+        axios.get('/api/checkMyVote?user=' + usr).then(
             resp => {
                 self.setState({
                     alreadyVoted: resp.data
@@ -110,7 +110,7 @@ class Vote extends Component {
             <div>
                 <br />
                 <div className="alert alert-success" role="alert">
-                    <button className='btn btn-sm btn-success' onClick={this.myTransactionStatus}>Check Status</button>
+                    <button className='btn btn-sm btn-success' onClick={()=>this.myTransactionStatus(this.state.user)}>Check Status</button>
                     <br />
                     Status of your vote is : {this.state.voteStatus}
                 </div>

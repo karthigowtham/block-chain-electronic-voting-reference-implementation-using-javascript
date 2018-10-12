@@ -54,3 +54,7 @@
   padding:.2em;
   border-radius: 20%;
 }
+
+.modal-xlg{
+  max-width: 1200px;
+}
