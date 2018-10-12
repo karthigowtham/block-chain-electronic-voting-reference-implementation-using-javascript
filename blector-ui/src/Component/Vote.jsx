@@ -35,6 +35,7 @@ class Vote extends Component {
     componentDidMount() {
         this.checkMyVote();
         this.myTransactionStatus();
+        this.getLoggedInUser();
     }
 
     getLoggedInUser = () => {

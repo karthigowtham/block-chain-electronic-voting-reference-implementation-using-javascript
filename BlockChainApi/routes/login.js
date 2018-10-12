@@ -15,7 +15,9 @@ router.post('/', function (req, res, next) {
 
   user.setUser(sha256(username));
   user.setConnectedUrl(mngrUrl);
+  
   let resp = registration.registerMe(mngrUrl);
+
   resp
   .then(resp => { res.render('application', { resp: resp, error: '' }); })
   .catch(err => { res.render('application', { error: error, resp: '' }); })
