@@ -67,6 +67,7 @@ router.post('/broadcast/chain', function (req, res) {
 });
 
 
+setInterval(viCoin.minePendingTransactions, 10000)
 
 router.get('/mine', function (req, res) {
     viCoin.minePendingTransactions();

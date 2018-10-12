@@ -35,10 +35,20 @@ class Result extends Component {
             })
     }
 
+    mine = () => {
+        let self=this
+        axios.get('/api/mine')
+            .then(resp => {
+                alert(resp.data.message);
+            })
+    }
+
     render() {
         return (
             <div>
                 <br />
+                <button className='btn btn-white' onClick={this.votingCount}>Refresh</button>&nbsp;
+                <button className='btn btn-success' onClick={this.mine}>mine</button>
                 <hr />
                 <table className="table">
                     <thead className="thead-dark">

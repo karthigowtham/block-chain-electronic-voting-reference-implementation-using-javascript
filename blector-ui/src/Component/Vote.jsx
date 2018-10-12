@@ -28,7 +28,8 @@ class Vote extends Component {
         candidates: Candidates,
         selectedId: 0,
         alreadyVoted: false,
-        voteStatus: 'Please Vote'
+        voteStatus: 'Please Vote',
+        user:''
     }
 
     componentDidMount() {
@@ -36,9 +37,19 @@ class Vote extends Component {
         this.myTransactionStatus();
     }
 
+    getLoggedInUser = () => {
+        axios.get('/login/getUser').then(
+            resp => {
+                this.setState({
+                    user: resp.data.user.username,
+
+                });
+            });
+    }
+
     myTransactionStatus = () => {
         let self = this;
-        axios.get('/api/myTransactionStatus?user=' + window.user).then(
+        axios.get('/api/myTransactionStatus?user=' + this.state.user).then(
             resp => {
                 self.setState({
                     voteStatus: resp.data
@@ -52,7 +63,7 @@ class Vote extends Component {
 
     checkMyVote = () => {
         let self = this;
-        axios.get('/api/checkMyVote?user=' + window.user).then(
+        axios.get('/api/checkMyVote?user=' + this.state.user).then(
             resp => {
                 self.setState({
                     alreadyVoted: resp.data
@@ -70,19 +81,19 @@ class Vote extends Component {
         });
     }
     handleSubmit = (event) => {
-            event.preventDefault();
-        if(this.state.selectedId==0){
+        event.preventDefault();
+        if (this.state.selectedId == 0) {
             alert("Please select a candidate");
-            return ;
+            return;
         }
         let self = this;
-    
+
         let seleCand = Candidates.find((cnd) => {
             return cnd.id == this.state.selectedId
         });
         let candidateName = seleCand.name;
         axios.post('/api/transaction', {
-            voter: window.user,
+            voter: this.state.user,
             candidate: candidateName
         }).then(function (response) {
             console.log(response);

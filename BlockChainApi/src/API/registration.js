@@ -5,37 +5,48 @@ const request = require('request');
 const uuid = require('uuid');
 var serverInfo = require('../Server-info');
 const chainDistribution = require('./chainDistribution')
+const reqPromise = require('request-promise');
 
 router.get('/check', function (req, res) {
     res.json({ message: 'Node available' });
 })
 
 router.get('/register-me', function (req, res) {
-    // registring the Node to node manager.
-    var info = serverInfo.getInstance(null);
+    registerMe(req.query.nodemanager)
+        .then(body => {
+            res.json({ resp: body })
+        })
+        .catch(err => {
+            res.json({ resp: err })
+        })
 
+});
+
+var registerMe = (nodemanager) => {
+    let asyncReq = [];
+    var info = serverInfo.getInstance(null);
     const nodeAddress = uuid();
     const registerMySelftoBlockChainNW = {
-        uri: req.query.nodemanager + '/registerNode',//"http://localhost:2000/registerNode",
+        uri: nodemanager + '/registerNode',//"http://localhost:2000/registerNode",
         method: 'POST',
         body: { nodeAddress: nodeAddress, port: info.port },
         json: true,
         proxy: '' // set this to bypass system proxy
     }
-    request(registerMySelftoBlockChainNW, function (error, response, body) {
-        if (response && response.statusCode !== 200) {
-            console.log('error:', error);
-        } else {
+    return Promise.resolve(request(registerMySelftoBlockChainNW,function(error,response,body){
+          if(response && response.statusCode !== 200){
+             console.log('error:', error);
+          }else {
             let chain = blockChain.SingletonBlockChain.getInstance();
-            info.setNodeManager(req.query.nodemanager);
+            info.setNodeManager(nodemanager);
             chain.mynodeUrl = body.nodeUrl;
             chain.updateNetworkNodes(body.nodeNWAddress);
             chainDistribution.updateMyChain();
-            res.json({ message: 'Successfully Register myself' })
-        }
-    });
-});
-
+            return body
+          }
+    }))
+   
+}
 
 router.get('/deRegister-me', function (req, res) {
     // registring the Node to node manager.
@@ -85,4 +96,4 @@ var updateNWnodes = () => {
 
 }
 
-module.exports = { router, updateNWnodes }
+module.exports = { router, updateNWnodes, registerMe }

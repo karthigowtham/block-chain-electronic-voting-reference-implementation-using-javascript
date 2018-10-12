@@ -29,7 +29,7 @@ app.use('/', index);
 app.use('/login',login);
 app.use('/register', register.router);
 app.use('/api',apiService)
-app.use('/users', users);
+
 
 setInterval(register.updateNWnodes, 10000)
 

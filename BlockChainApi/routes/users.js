@@ -1,9 +1,32 @@
-var express = require('express');
-var router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+class User {
+  constructor() {
+    this.username = '';
+    this.connectedUrl='';
+  }
+  setUser(username){
+    this.username=username
+  }
+  setConnectedUrl(connectedUrl){
+    this.connectedUrl=connectedUrl
+  }
+}
 
-module.exports = router;
+var userInstance = (() => {
+  var instance;
+  function createInstance() {
+    var object = new User();
+    return object;
+  }
+  return {
+
+    getInstance: function () {
+      if (!instance) {
+        instance = createInstance();
+      }
+      return instance;
+    }
+  };
+})();
+
+module.exports = userInstance
