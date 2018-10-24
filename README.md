@@ -1,5 +1,5 @@
 # Blector 
-## Electronic Voting using block chain (reference Implementation)
+### Electronic Voting using block chain (reference Implementation)
 	
 # Blector Introduction
 * Blector is an electronic voting system , Developed using block chain technology as a reference implementation.
@@ -29,13 +29,13 @@
 ![Image for blector architecture](/BlectorArchitecture.png)
 
 # Transaction and Smart contract
-## Transaction
+### Transaction
 * Transaction data is important param in the block chain
 * In Blector the transaction is just the voter , candidate ,vote count, ID ( to track the Txn )
 
 ![Image for Transaction](/Transaction.png)
 
-## Smart Contract
+### Smart Contract
 * Smart contract is kind of protocol to accepts  the transaction 
 * In Blector , contract is to make sure the voter can cast his/her vote only once
 * For duplicate voting , send the transactions to rejected queue
@@ -52,7 +52,7 @@
 
 ![Image for Blector block](Block.png)
 
-## Block in Blector
+### Block in Blector
 * In Blector, Block has 
 	* Time stamp
 	* Transactions
@@ -70,7 +70,7 @@
 
 ![Image for Blector Chain](/BlockChain.png)
 
-## Chain in Blector
+### Chain in Blector
 * In Blector , chain consist of array of block , difficulty level, array of pending transaction , array of rejected transactions, nodes it connected, mine reward ( can be used if required) , my current transactions
 * Operations include
 	* Creating transaction – validate the smart contract and create the txn
@@ -88,7 +88,7 @@
   
 ![Image for Blector Chain](/Mining.png)
 
-## Mining & proof of work in Blector
+### Mining & proof of work in Blector
 
 * In Blector , Mining algorithm is simple . 
 * Ie., you need to generate the hash until you get hash starts with 5 zero’s.  ( 5 is defined in difficulty level)
@@ -101,7 +101,7 @@
 	* Mining the block 
 	* Adding or removing the node etc.
 	
-## Distribution in Blector
+### Distribution in Blector
 * In Blector , When voter cast the vote , it will be sent to all the nodes in NW. 
 * Once the mining is done the chain is broadcasted .
 * Each node will validate the chain update or reject the chain.
