@@ -12,7 +12,8 @@
 * The blockchain is a decentralized database that records the data , it could be money transaction , Supply chain, Votes, assests etc.,
 * It consist of Block and chain , and entire data is synchronized accrossed the network
 * It could be public(bitcoin) and private (hosted in an organization)
-![Image for block chain](/images/logo.png)
+
+![Image for block chain](/BlockChainOverview.png)
 
 # Block Chain Key terms
 * __ADDRESS__ Used to receive and send transactions 
@@ -25,21 +26,21 @@
 
 # Blector Architecture
 
-![Image for blector architecture](/images/logo.png)
+![Image for blector architecture](/BlectorArchitecture.png)
 
 # Transaction and Smart contract
 ## Transaction
 * Transaction data is important param in the block chain
 * In Blector the transaction is just the voter , candidate ,vote count, ID ( to track the Txn )
 
-![Image for Transaction](/images/logo.png)
+![Image for Transaction](/Transaction.png)
 
 ## Smart Contract
 * Smart contract is kind of protocol to accepts  the transaction 
 * In Blector , contract is to make sure the voter can cast his/her vote only once
 * For duplicate voting , send the transactions to rejected queue
 
-![Image for smart contract](/images/logo.png)
+![Image for smart contract](/SmartContract.png)
 
 
 # Block
@@ -49,7 +50,7 @@
 * Block consist of important parameters like Timestamp, Transaction , Hash value , previous Hash value
 * It can also include other parameters based on the requirement 
 
-![Image for Blector block](/images/logo.png)
+![Image for Blector block](Block.png)
 
 ## Block in Blector
 * In Blector, Block has 
@@ -65,9 +66,9 @@
 
 * Chain in continuous growing block of records , where the data is tamper free 
 * Chain include validation & update of local chain
-* Many operation on transactions ( based on requirement )
+* Many other operation on transactions ( based on requirement )
 
-![Image for Blector Chain](/images/logo.png)
+![Image for Blector Chain](/BlockChain.png)
 
 ## Chain in Blector
 * In Blector , chain consist of array of block , difficulty level, array of pending transaction , array of rejected transactions, nodes it connected, mine reward ( can be used if required) , my current transactions
@@ -85,7 +86,7 @@
 	* Generating the hash using the algorithm 
 	* Algorithm is simple to complex , usually SHA256
   
-![Image for Blector Chain](/images/logo.png)
+![Image for Blector Chain](/Mining.png)
 
 ## Mining & proof of work in Blector
 
